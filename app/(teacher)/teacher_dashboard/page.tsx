@@ -53,10 +53,13 @@ export default function Page() {
     queryFn: async () => {
       try {
         const { items } = await pocketbase_instance
-          ?.collection("users")
+          ?.collection("module_enrollments")
           .getList(1, 50, {
-            filter: "account_type = 'Student'",
+            filter: `teacher = '${user.id}'`,
+            expand: "student, module",
           });
+
+        console.log(items);
 
         return items;
       } catch (err) {
@@ -134,25 +137,35 @@ export default function Page() {
 
         {Array.isArray(studentsData) && studentsData!.length > 0 && (
           <>
-            <h1 className="text-4xl font-bold">Students</h1>
+            <h1 className="text-4xl font-bold">Enrolled Students</h1>
             <div className="overflow-x-auto rounded-box border border-base-content/5 shadow  bg-gray-50">
               <table className="table">
                 {/* head */}
                 <thead>
                   <tr>
-                    <th></th>
+                    <th>#</th>
                     <th>Name</th>
                     <th>Course</th>
                     <th>School</th>
+                    <th>Module</th>
                   </tr>
                 </thead>
                 <tbody>
                   {studentsData.map((student, index) => (
                     <tr key={index}>
                       <th>{index}</th>
-                      <th className="font-normal">{student.name}</th>
-                      <th className="font-normal">{student.course}</th>
-                      <th className="font-normal">{student.school}</th>
+                      <th className="font-normal">
+                        {student.expand!.student.name}
+                      </th>
+                      <th className="font-normal">
+                        {student.expand!.student.course}
+                      </th>
+                      <th className="font-normal">
+                        {student.expand!.student.school}
+                      </th>
+                      <th className="font-normal">
+                        {student.expand!.module.title}
+                      </th>
                     </tr>
                   ))}
                 </tbody>
